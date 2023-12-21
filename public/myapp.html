@@ -9,10 +9,35 @@
 
   <!-- Load the Chart.js library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
   <link rel="stylesheet" href="https://js.arcgis.com/4.12/esri/themes/light/main.css" />
 
   <style>
+    h1 {
+      font-family: Roboto;
+      color: #fff;
+      margin-top: 50px;
+      font-weight: 200;
+      text-align: center;
+      display: block;
+      text-decoration: none;
+    }
+
+    .wrapper {
+      width: 80%;
+      display: block;
+      overflow: hidden;
+      margin: 0 auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 4px;
+    }
+
+    canvas {
+      background: #fff;
+      height: 400px;
+    }
+
     html,
     body {
       padding: 0;
@@ -445,6 +470,121 @@
         });
       }
     });
+    var data = {
+      "datasets": [
+        {
+          "backgroundColor": "rgb(156, 39, 176)",
+          "borderColor": "rgb(156, 39, 176)",
+          "fill": false,
+          "data": [
+            10,
+            120,
+            80,
+            134
+          ],
+          "id": "amount",
+          "label": "Purchase amount (USD)",
+          "yAxisID": "left"
+        },
+        {
+          "backgroundColor": "rgb(39, 176, 200)",
+          "borderColor": "rgb(39, 176, 200)",
+          "fill": false,
+          "data": [
+            300,
+            -1200,
+            500,
+            -340
+          ],
+          "id": "amount",
+          "label": "Purchase amount (USD)",
+          "yAxisID": "right"
+
+        }
+      ],
+      "labels": [
+        "2017-01-02",
+        "2017-04-02",
+        "2017-07-02",
+        "2018-01-02"
+      ]
+    };
+    var options = {
+      "elements": {
+        "rectangle": {
+          "borderWidth": 2
+        }
+      },
+      "layout": {
+        "padding": 0
+      },
+      "legend": {
+        "display": true,
+        "labels": {
+          "boxWidth": 16
+        }
+      },
+      "maintainAspectRatio": false,
+      "responsive": true,
+      "scales": {
+        "xAxes": [
+          {
+            "gridLines": {
+              "display": false
+            },
+            "scaleLabel": {
+              "display": true,
+              "labelString": "Date"
+            },
+            "stacked": false,
+            "ticks": {
+              "autoSkip": true,
+              "beginAtZero": true
+            },
+            "time": {
+              "tooltipFormat": "[Q]Q - YYYY",
+              "unit": "quarter"
+            },
+            "type": "time"
+          }
+        ],
+        "yAxes": [
+          {
+            "scaleLabel": {
+              "display": true,
+              "labelString": "Purchase amount (USD)"
+            },
+            "id": "left",
+            "stacked": false,
+            "ticks": {
+              "beginAtZero": true
+            }
+          },
+          {
+            "scaleLabel": {
+              "display": true,
+              "labelString": "Purchase count"
+            },
+            "id": "right",
+            "position": "right",
+            "stacked": false,
+            "ticks": {
+              "beginAtZero": true
+            }
+          }
+        ]
+      },
+      "title": {
+        "display": false
+      },
+      "tooltips": {
+        "intersect": false,
+        "mode": "index",
+        "position": "nearest",
+        "callbacks": {}
+      }
+    }
+
   </script>
 </head>
 
@@ -452,9 +592,41 @@
   <div id="viewDiv"></div>
   <div id="panel">
     <div style="padding: 15px;">
-      
+
       <canvas id="env-chart" height="250" width="550"></canvas>
       <canvas id="Node-status-chart" height="250" width="550"></canvas>
+      <canvas id="line-chart" width="250" height="200"></canvas>
+      <script>
+        new Chart(document.getElementById("line-chart"), {
+          type: 'line',
+          data: {
+            labels: [12, 12.32, 12.43, 13.23, 13.48, 14.02, 14.45, 15.07, 15.38, 16],
+            datasets: [{
+              data: [86, 114, 106, 106, 107, 111, 133, 221, 350, 250],
+              label: "Băng thông (Mbps)",
+              borderColor: "#3e95cd",
+              fill: false
+            }, {
+              data: [282, 350, 411, 345, 335, 409, 247, 202, 400, 320],
+              label: "Download (Mbps)",
+              borderColor: "#8e5ea2",
+              fill: false
+            }, {
+              data: [168, 170, 178, 190, 203, 276, 408, 490, 275, 334],
+              label: "Upload (Mbps)",
+              borderColor: "#3cba9f",
+              fill: false
+            }
+            ]
+          },
+          options: {
+            title: {
+              display: true,
+              text: 'Lưu lượng mạng hạ tầng IT khách sạn'
+            }
+          }
+        });
+      </script>
     </div>
   </div>
 </body>
