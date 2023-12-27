@@ -1,2 +1,2 @@
 # Hotel IT infrastructure management software
-## Developed by: Tô Văn Hiệu
+## Developed by: To Van Hieu
