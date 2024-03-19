@@ -8,6 +8,7 @@ const { capitalCase } = require("change-case");
 const extractValues = require("extract-values");
 const stringSimilarity = require("string-similarity");
 const { upperCaseFirst } = require("upper-case-first");
+wiki.setLang('vi')
 
 const cors = require("cors");
 const path = require("path");
@@ -25,6 +26,7 @@ const wikipediaChat = require("./intents/wikipedia.json");
 const welcomeChat = require("./intents/Default_Welcome.json");
 const fallbackChat = require("./intents/Default_Fallback.json");
 const unitConverterChat = require("./intents/unit_converter.json");
+
 
 dotenv.config();
 

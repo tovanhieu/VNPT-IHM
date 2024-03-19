@@ -389,7 +389,7 @@
             const layer = new GraphicsLayer();
 
             const map = new Map({
-                basemap: "streets-night-vector",
+                basemap: "osm/dark-gray",
                 layers: [layer_Wave, layer]
                 // layers: [layer]
             });
@@ -399,7 +399,8 @@
                 map: map,
                 zoom: 16,
                 // center: [140.034465, 35.646667] // longitude, latitude 
-                center: [135.4862, 34.689383] // longitude, latitude 
+                // center: [135.4862, 34.689383] // longitude, latitude
+                center: [107.0842971, 20.9517149]
             });
 
             // map.add(layer_Wave);
@@ -637,7 +638,7 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <img src="/public/img/VNPT_Logo.svg.png" alt="" width="50px" height="50px">
+                        <img src="./img/VNPT_Logo.png" alt="" width="50px" height="50px">
                     </div>
                     <div class="collapse navbar-collapse" id="myNavbar" style="font-size: medium;">
                         <ul class="nav navbar-nav navbar-right">
@@ -807,7 +808,7 @@
         <footer class="footer" id="contact">
             <div style="color: blanchedalmond; font-size: larger; display: flex; flex-wrap: nowrap;">
                 <div class="img-footer" style="margin-right: 30px;">
-                    <img src="./img/VNPT_Logo.svg.png" height="50px" width="50px" alt="">
+                    <img src="./img/VNPT_Logo.png" height="50px" width="50px" alt="">
                 </div>
                 <div class="footer-content">
                     <p style="text-align: center;">Phát triển bởi: Tô Văn Hiệu

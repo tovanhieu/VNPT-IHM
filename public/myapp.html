@@ -84,247 +84,72 @@
     }
   </style>
 
-  <script src="https://js.arcgis.com/4.12/"></script>
+  <script src="https://js.arcgis.com/4.28/"></script>
 
   <script>
-    require([
-      "esri/views/MapView",
-      "esri/WebMap",
-      "esri/widgets/Legend",
-      "esri/widgets/Expand",
-      "esri/widgets/Bookmarks",
-      "esri/core/lang",
-      "esri/core/promiseUtils",
-      "esri/core/watchUtils"
-    ], function (
-      MapView,
-      WebMap,
-      Legend,
-      Expand,
-      Bookmarks,
-      lang,
-      promiseUtils,
-      watchUtils
-    ) {
-      const webmap = new WebMap({
-        portalItem: {
-          id: "96cf806c32874026bef5f586315f098c"
-          // id : "436587bb14c44ff79633bebd1b6b102c"
-        }
-      });
+    require(["esri/config", "esri/Map", "esri/views/MapView", "esri/Graphic", "esri/layers/GraphicsLayer"],
+      function (esriConfig, Map, MapView, Graphic, GraphicsLayer) {
+        esriConfig.apiKey = "AAPK99c3b2c0da9b4b99a3272d2c60604effYpA4bmZkOlYzvyMFFPk_2LlwZN36qNTq0VzqecjE4JvlPtEFvA5k3e6-8ia9RmrL";
+        const map = new Map({
+          basemap: "osm/dark-gray" // basemap styles service
 
-      const view = new MapView({
-        map: webmap,
-        container: "viewDiv",
-        constraints: {
-          minScale: 300000
-        },
-        highlightOptions: {
-          color: "black",
-          haloOpacity: 0.65,
-          fillOpacity: 0.45
-        }
-      });
-
-      // Add UI elements to the view
-
-      // Displays instructions to the user for understanding the sample
-      // And places them in an Expand widget instance
-
-      const titleContent = document.createElement("div");
-      titleContent.style.padding = "15px";
-      titleContent.style.backgroundColor = "white";
-      titleContent.style.width = "500px";
-      titleContent.innerHTML = [
-        "<div id='title' class='esri-widget'>",
-        "<span id='num-homicides' style='color: blue; text-align: center'>VNPT-IHM</span>",
-        "</div>"
-      ].join(" ");
-
-
-      const titleExpand = new Expand({
-        expandIconClass: "esri-icon-dashboard",
-        expandTooltip: "Summary stats",
-        view: view,
-        content: titleContent,
-        expanded: view.widthBreakpoint !== "xsmall"
-      });
-      view.ui.add(titleExpand, "top-right");
-
-      const legendExpand = new Expand({
-        view: view,
-        content: new Legend({
-          view: view
-        }),
-        expanded: view.widthBreakpoint !== "xsmall"
-      });
-      view.ui.add(legendExpand, "bottom-left");
-
-      view.watch("widthBreakpoint", function (newValue) {
-        titleExpand.expanded = newValue !== "xsmall";
-        legendExpand.expanded = newValue !== "xsmall";
-      });
-
-      const bookmarksWidget = new Bookmarks({
-        view: view
-      });
-
-      const bookmarksExpand = new Expand({
-        view: view,
-        content: bookmarksWidget
-      });
-      view.ui.add(bookmarksExpand, "top-right");
-
-      bookmarksWidget.on("select-bookmark", function (event) {
-        bookmarksExpand.expanded = false;
-      });
-
-      // Displays instructions to the user for understanding the sample
-      // And places them in an Expand widget instance
-
-      const sampleInstructions = document.createElement("div");
-      sampleInstructions.style.padding = "10px";
-      sampleInstructions.style.backgroundColor = "white";
-      sampleInstructions.style.width = "300px";
-      sampleInstructions.innerHTML = [
-        "<b>Drag</b> the pointer over the data to view stats",
-        "within one mile of the pointer location."
-      ].join(" ");
-
-      const instructionsExpand = new Expand({
-        expandIconClass: "esri-icon-question",
-        expandTooltip: "How to use this sample",
-        view: view,
-        content: sampleInstructions
-      });
-      view.ui.add(instructionsExpand, "top-left");
-
-      let highlightHandle = null;
-
-      /**
-       * Create charts and start querying the layer view when
-       * the view is ready and data begins to draw in the view
-       */
-      view.when().then(function () {
-        // Create the charts when the view is ready
-        createCharts();
-
-        view.whenLayerView(layer).then(function (layerView) {
-          watchUtils.whenFalseOnce(layerView, "updating", function (val) {
-            // Query layer view statistics as the user clicks
-            // or drags the pointer across the view.
-            view.on(["click", "drag"], function (event) {
-              // disables navigation by pointer drag
-              event.stopPropagation();
-              queryStatsOnDrag(layerView, event).then(updateCharts);
-            });
-          });
         });
-      });
-
-      /**
-       * Queries statistics against the layer view at the given screen location
-       */
-      var queryStatsOnDrag = promiseUtils.debounce(function (
-        layerView,
-        event
-      ) {
-        // create a query object for the highlight and the statistics query
-
-        const query = layerView.layer.createQuery();
-        query.geometry = view.toMap(event); // converts the screen point to a map point
-        query.distance = 1; // queries all features within 1 mile of the point
-        query.units = "miles";
-
-        const statsQuery = query.clone();
-
-        // date used to calculate the average time a case has been opened
-
-        const dataDownloadDate = Date.UTC(2018, 6, 5);
-
-        // Create the statistic definitions for querying stats from the layer view
-        // the `onStatisticField` property can reference a field name or a SQL expression
-        // `outStatisticFieldName` is the name of the statistic you will reference in the result
-        // `statisticType` can be sum, avg, min, max, count, stddev
-        const statDefinitions = [
-          // Age of crime since it was reported in years
-
-          {
-            onStatisticField:
-              "(" +
-              dataDownloadDate +
-              " - milliseconds) / (1000 * 60 * 60 * 24 * 365.25)",
-            outStatisticFieldName: "avg_open_time_years",
-            statisticType: "avg"
-          },
-
-          // total homicides
-
-          {
-            onStatisticField: "1",
-            outStatisticFieldName: "total",
-            statisticType: "count"
-          },
-        ];
-
-        // add the stat definitions to the the statistics query object cloned earlier
-        statsQuery.outStatistics = statDefinitions;
-
-        // execute the query for all features in the layer view
-        const allStatsResponse = layerView.queryFeatures(statsQuery).then(
-          function (response) {
-            const stats = response.features[0].attributes;
-            return stats;
-          },
-          function (e) {
-            console.error(e);
+        const view = new MapView({
+          map: map,
+          center: [107.0842971, 20.9517149], // Longitude, latitude
+          zoom: 18, // Zoom level
+          container: "viewDiv" // Div element
+        });
+        const graphicsLayer = new GraphicsLayer();
+        map.add(graphicsLayer);
+        const point1 = { //Create a point
+          type: "point",
+          longitude: 107.0842971,
+          latitude: 20.9517149
+        };
+        const simpleMarkerSymbol1 = {
+          type: "simple-marker",
+          color: [226, 119, 40],  // Orange
+          outline: {
+            color: [255, 255, 255], // White
+            width: 1
           }
-        );
+        };
+        const pointGraphic1 = new Graphic({
+          geometry: point1,
+          symbol: simpleMarkerSymbol1
+        });
+        const point2 = { //Create a point
+          type: "point",
+          longitude: 107.0852133,
+          latitude: 20.9511412
+        };
+        const simpleMarkerSymbol2 = {
+          type: "simple-marker",
+          color: [226, 145, 40],  // Orange
+          outline: {
+            color: [255, 255, 255], // White
+            width: 1
+          }
+        };
+        const pointGraphic2 = new Graphic({
+          geometry: point2,
+          symbol: simpleMarkerSymbol2
+        });
+        graphicsLayer.add(pointGraphic1);
+        graphicsLayer.add(pointGraphic2);
+  </script>
+</head>
 
-        const openStatsQuery = statsQuery.clone();
-        openStatsQuery.where = "disposition = 'Open/No arrest'";
+<body>
+  <div id="viewDiv"></div>
+  <div id="panel">
+    <div style="padding: 15px;">
 
-        // execute the query for only unsolved homicides in the layer view
-        const unsolvedStatsResponse = layerView
-          .queryFeatures(openStatsQuery)
-          .then(
-            function (response) {
-              const stats = response.features[0].attributes;
-              return stats;
-            },
-            function (e) {
-              console.error(e);
-            }
-          );
-        // Return the promises that will resolve to each set of statistics
-        return promiseUtils.eachAlways([
-          allStatsResponse,
-          unsolvedStatsResponse
-        ]);
-      });
-
-
-      /**
-       * Updates the given chart with new data
-       */
-      function updateChart(chart, dataValues) {
-        if (chart.config.type === "doughnut") {
-          chart.data.datasets[0].data = dataValues;
-        } else {
-          chart.data.datasets[0].data = dataValues.solved;
-          chart.data.datasets[1].data = dataValues.unsolved;
-        }
-        chart.update();
-      }
-
-      /**
-       * Creates 2 charts for environment and node management
-     */
-      function createCharts() {
-        totalNumber = document.getElementById("num-homicides");
-        avgAge = document.getElementById("avg-age");
-        avgOpenTime = document.getElementById("avg-open-time");
-
+      <canvas id="env-chart" height="170" width="550"></canvas>
+      <canvas id="Node-status-chart" height="150" width="500"></canvas>
+      <canvas id="line-chart" width="250" height="150"></canvas>
+      <script>
         const yearCanvas = document.getElementById("env-chart");
         yearChart = new Chart(yearCanvas.getContext("2d"), {
           type: "line",
@@ -388,7 +213,8 @@
             }
           }
         });
-
+      </script>
+      <script>
         const ageCanvas = document.getElementById("Node-status-chart");
         ageChart = new Chart(ageCanvas.getContext("2d"), {
           type: "horizontalBar",
@@ -435,167 +261,7 @@
             }
           }
         });
-
-        const dispositionCanvas = document.getElementById(
-          "disposition-chart"
-        );
-        dispositionChart = new Chart(dispositionCanvas.getContext("2d"), {
-          type: "doughnut",
-          data: {
-            labels: [
-              "Closed by arrest",
-              "Closed without arrest",
-              "Open/No arrest"
-            ],
-            datasets: [
-              {
-                backgroundColor: ["#149dcf", "#a6c736", "#ed5050"],
-                borderColor: "rgb(255, 255, 255)",
-                borderWidth: 1,
-                data: [0, 0, 0]
-              }
-            ]
-          },
-          options: {
-            responsive: false,
-            cutoutPercentage: 35,
-            legend: {
-              position: "bottom"
-            },
-            title: {
-              display: true,
-              text: "Status of the subway"
-            }
-          }
-        });
-      }
-    });
-    var data = {
-      "datasets": [
-        {
-          "backgroundColor": "rgb(156, 39, 176)",
-          "borderColor": "rgb(156, 39, 176)",
-          "fill": false,
-          "data": [
-            10,
-            120,
-            80,
-            134
-          ],
-          "id": "amount",
-          "label": "Purchase amount (USD)",
-          "yAxisID": "left"
-        },
-        {
-          "backgroundColor": "rgb(39, 176, 200)",
-          "borderColor": "rgb(39, 176, 200)",
-          "fill": false,
-          "data": [
-            300,
-            -1200,
-            500,
-            -340
-          ],
-          "id": "amount",
-          "label": "Purchase amount (USD)",
-          "yAxisID": "right"
-
-        }
-      ],
-      "labels": [
-        "2017-01-02",
-        "2017-04-02",
-        "2017-07-02",
-        "2018-01-02"
-      ]
-    };
-    var options = {
-      "elements": {
-        "rectangle": {
-          "borderWidth": 2
-        }
-      },
-      "layout": {
-        "padding": 0
-      },
-      "legend": {
-        "display": true,
-        "labels": {
-          "boxWidth": 16
-        }
-      },
-      "maintainAspectRatio": false,
-      "responsive": true,
-      "scales": {
-        "xAxes": [
-          {
-            "gridLines": {
-              "display": false
-            },
-            "scaleLabel": {
-              "display": true,
-              "labelString": "Date"
-            },
-            "stacked": false,
-            "ticks": {
-              "autoSkip": true,
-              "beginAtZero": true
-            },
-            "time": {
-              "tooltipFormat": "[Q]Q - YYYY",
-              "unit": "quarter"
-            },
-            "type": "time"
-          }
-        ],
-        "yAxes": [
-          {
-            "scaleLabel": {
-              "display": true,
-              "labelString": "Purchase amount (USD)"
-            },
-            "id": "left",
-            "stacked": false,
-            "ticks": {
-              "beginAtZero": true
-            }
-          },
-          {
-            "scaleLabel": {
-              "display": true,
-              "labelString": "Purchase count"
-            },
-            "id": "right",
-            "position": "right",
-            "stacked": false,
-            "ticks": {
-              "beginAtZero": true
-            }
-          }
-        ]
-      },
-      "title": {
-        "display": false
-      },
-      "tooltips": {
-        "intersect": false,
-        "mode": "index",
-        "position": "nearest",
-        "callbacks": {}
-      }
-    }
-
-  </script>
-</head>
-
-<body>
-  <div id="viewDiv"></div>
-  <div id="panel">
-    <div style="padding: 15px;">
-
-      <canvas id="env-chart" height="250" width="550"></canvas>
-      <canvas id="Node-status-chart" height="250" width="550"></canvas>
-      <canvas id="line-chart" width="250" height="200"></canvas>
+      </script>
       <script>
         new Chart(document.getElementById("line-chart"), {
           type: 'line',
