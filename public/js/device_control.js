@@ -1,4 +1,7 @@
 // Way 1
+var deviceIP = '10.36.90.7';
+var deviceUser = 'admin';
+var devicePassword = 'Ttcntt@2016';
 var os = require('os');
 console.log(os.platform())
 console.log(os.arch())
@@ -28,14 +31,14 @@ function chilkatExample() {
 
     var ssh = new chilkat.Ssh();
 
-    var success = ssh.Connect("10.36.90.7",22);
+    var success = ssh.Connect(deviceIP,22);
     if (success !== true) {
         console.log(ssh.LastErrorText);
         return;
     }
     console.log("2")
     // Authenticate using login/password:
-    success = ssh.AuthenticatePw("admin","Ttcntt@2016");
+    success = ssh.AuthenticatePw(deviceUser,devicePassword);
     if (success !== true) {
         console.log(ssh.LastErrorText);
         return;
