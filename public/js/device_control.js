@@ -1,7 +1,7 @@
 // Way 1
-var deviceIP = '10.36.90.7';
-var deviceUser = 'admin';
-var devicePassword = 'Ttcntt@2016';
+var deviceIP = "10.36.90.7";
+var deviceUser = "admin";
+var devicePassword = "Ttcntt@2016";
 var os = require('os');
 console.log(os.platform())
 console.log(os.arch())
@@ -22,7 +22,6 @@ if (os.platform() == 'win32') {
 } else if (os.platform() == 'darwin') {
     var chilkat = require('@chilkat/ck-node17-macosx');
 }
-
 function chilkatExample() {
     console.log("1")
 
@@ -43,6 +42,7 @@ function chilkatExample() {
         console.log(ssh.LastErrorText);
         return;
     }
+    console.log("3")
 
     // Start a shell session.
     var channelNum = ssh.QuickShell();
@@ -57,7 +57,6 @@ function chilkatExample() {
     // (It's not actually required that we do this, but it helps to know that all is OK at this point..)
     success = ssh.ChannelReceiveUntilMatch(channelNum,"#","utf-8",true);
     if (success !== true) {
-        console.log("test")
         console.log(ssh.LastErrorText);
         return;
     }
@@ -65,7 +64,7 @@ function chilkatExample() {
 
     // Show what we received so far:
     console.log(ssh.GetReceivedText(channelNum,"utf-8"));
-
+    
     console.log("6");
 
     // Send a "show clock" command.
@@ -81,20 +80,21 @@ function chilkatExample() {
     }
     console.log("8");
 
-    // console.log(ssh.GetReceivedText(channelNum,"utf-8"));
+    console.log(ssh.GetReceivedText(channelNum,"utf-8"));
 
-    // // Send another command and get the output, and so on...
-    // success = ssh.ChannelSendString(channelNum,"some other command\n","utf-8");
-    // success = ssh.ChannelReceiveUntilMatch(channelNum,"#","utf-8",true);
-    // if (success !== true) {
-    //     console.log(ssh.LastErrorText);
-    //     return;
-    // }
-    // console.log("9");
+    // Send another command and get the output, and so on...
+    success = ssh.ChannelSendString(channelNum,"some other command\n","utf-8");
+    success = ssh.ChannelReceiveUntilMatch(channelNum,"#","utf-8",true);
+    if (success !== true) {
+        console.log(ssh.LastErrorText);
+        return;
+    }
+    console.log("9");
 
-    // console.log(ssh.GetReceivedText(channelNum,"utf-8"));
-    // console.log("10");
+    console.log(ssh.GetReceivedText(channelNum,"utf-8"));
+    console.log("10");
 
     ssh.Disconnect();
 
 };
+chilkatExample();

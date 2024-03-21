@@ -85,59 +85,58 @@
   </style>
 
   <script src="https://js.arcgis.com/4.28/"></script>
-
   <script>
-    require(["esri/config", "esri/Map", "esri/views/MapView", "esri/Graphic", "esri/layers/GraphicsLayer"],
-      function (esriConfig, Map, MapView, Graphic, GraphicsLayer) {
-        esriConfig.apiKey = "AAPK99c3b2c0da9b4b99a3272d2c60604effYpA4bmZkOlYzvyMFFPk_2LlwZN36qNTq0VzqecjE4JvlPtEFvA5k3e6-8ia9RmrL";
-        const map = new Map({
-          basemap: "osm/dark-gray" // basemap styles service
+    require(["esri/config", "esri/Map", "esri/views/MapView", "esri/Graphic", "esri/layers/GraphicsLayer"], function (esriConfig, Map, MapView, Graphic, GraphicsLayer) {
+      esriConfig.apiKey = "AAPK99c3b2c0da9b4b99a3272d2c60604effYpA4bmZkOlYzvyMFFPk_2LlwZN36qNTq0VzqecjE4JvlPtEFvA5k3e6-8ia9RmrL";
+      const map = new Map({
+        basemap: "osm/dark-gray" // basemap styles service
 
-        });
-        const view = new MapView({
-          map: map,
-          center: [107.0842971, 20.9517149], // Longitude, latitude
-          zoom: 18, // Zoom level
-          container: "viewDiv" // Div element
-        });
-        const graphicsLayer = new GraphicsLayer();
-        map.add(graphicsLayer);
-        const point1 = { //Create a point
-          type: "point",
-          longitude: 107.0842971,
-          latitude: 20.9517149
-        };
-        const simpleMarkerSymbol1 = {
-          type: "simple-marker",
-          color: [226, 119, 40],  // Orange
-          outline: {
-            color: [255, 255, 255], // White
-            width: 1
-          }
-        };
-        const pointGraphic1 = new Graphic({
-          geometry: point1,
-          symbol: simpleMarkerSymbol1
-        });
-        const point2 = { //Create a point
-          type: "point",
-          longitude: 107.0852133,
-          latitude: 20.9511412
-        };
-        const simpleMarkerSymbol2 = {
-          type: "simple-marker",
-          color: [226, 145, 40],  // Orange
-          outline: {
-            color: [255, 255, 255], // White
-            width: 1
-          }
-        };
-        const pointGraphic2 = new Graphic({
-          geometry: point2,
-          symbol: simpleMarkerSymbol2
-        });
-        graphicsLayer.add(pointGraphic1);
-        graphicsLayer.add(pointGraphic2);
+      });
+      const view = new MapView({
+        map: map,
+        center: [107.0842971, 20.9517149], // Longitude, latitude
+        zoom: 18, // Zoom level
+        container: "viewDiv" // Div element
+      });
+      const graphicsLayer = new GraphicsLayer();
+      map.add(graphicsLayer);
+      const point1 = { //Create a point
+        type: "point",
+        longitude: 107.0845895,
+        latitude: 20.9516957
+      };
+      const simpleMarkerSymbol1 = {
+        type: "simple-marker",
+        color: [226, 119, 40],  // Orange
+        outline: {
+          color: [255, 255, 255], // White
+          width: 1
+        }
+      };
+      const pointGraphic1 = new Graphic({
+        geometry: point1,
+        symbol: simpleMarkerSymbol1
+      });
+      const point2 = { //Create a point
+        type: "point",
+        longitude: 107.0852133,
+        latitude: 20.9511412
+      };
+      const simpleMarkerSymbol2 = {
+        type: "simple-marker",
+        color: [226, 145, 40],  // Orange
+        outline: {
+          color: [255, 255, 255], // White
+          width: 1
+        }
+      };
+      const pointGraphic2 = new Graphic({
+        geometry: point2,
+        symbol: simpleMarkerSymbol2
+      });
+      graphicsLayer.add(pointGraphic1);
+      graphicsLayer.add(pointGraphic2);
+    });
   </script>
 </head>
 
@@ -261,171 +260,7 @@
             }
           }
         });
-<<<<<<< HEAD
       </script>
-=======
-
-        const dispositionCanvas = document.getElementById(
-          "disposition-chart"
-        );
-        dispositionChart = new Chart(dispositionCanvas.getContext("2d"), {
-          type: "doughnut",
-          data: {
-            labels: [
-              "Closed by arrest",
-              "Closed without arrest",
-              "Open/No arrest"
-            ],
-            datasets: [
-              {
-                backgroundColor: ["#149dcf", "#a6c736", "#ed5050"],
-                borderColor: "rgb(255, 255, 255)",
-                borderWidth: 1,
-                data: [0, 0, 0]
-              }
-            ]
-          },
-          options: {
-            responsive: false,
-            cutoutPercentage: 35,
-            legend: {
-              position: "bottom"
-            },
-            title: {
-              display: true,
-              text: "Status of the subway"
-            }
-          }
-        });
-      }
-    });
-    var data = {
-      "datasets": [
-        {
-          "backgroundColor": "rgb(156, 39, 176)",
-          "borderColor": "rgb(156, 39, 176)",
-          "fill": false,
-          "data": [
-            10,
-            120,
-            80,
-            134
-          ],
-          "id": "amount",
-          "label": "Purchase amount (USD)",
-          "yAxisID": "left"
-        },
-        {
-          "backgroundColor": "rgb(39, 176, 200)",
-          "borderColor": "rgb(39, 176, 200)",
-          "fill": false,
-          "data": [
-            300,
-            -1200,
-            500,
-            -340
-          ],
-          "id": "amount",
-          "label": "Purchase amount (USD)",
-          "yAxisID": "right"
-
-        }
-      ],
-      "labels": [
-        "2017-01-02",
-        "2017-04-02",
-        "2017-07-02",
-        "2018-01-02"
-      ]
-    };
-    var options = {
-      "elements": {
-        "rectangle": {
-          "borderWidth": 2
-        }
-      },
-      "layout": {
-        "padding": 0
-      },
-      "legend": {
-        "display": true,
-        "labels": {
-          "boxWidth": 16
-        }
-      },
-      "maintainAspectRatio": false,
-      "responsive": true,
-      "scales": {
-        "xAxes": [
-          {
-            "gridLines": {
-              "display": false
-            },
-            "scaleLabel": {
-              "display": true,
-              "labelString": "Date"
-            },
-            "stacked": false,
-            "ticks": {
-              "autoSkip": true,
-              "beginAtZero": true
-            },
-            "time": {
-              "tooltipFormat": "[Q]Q - YYYY",
-              "unit": "quarter"
-            },
-            "type": "time"
-          }
-        ],
-        "yAxes": [
-          {
-            "scaleLabel": {
-              "display": true,
-              "labelString": "Purchase amount (USD)"
-            },
-            "id": "left",
-            "stacked": false,
-            "ticks": {
-              "beginAtZero": true
-            }
-          },
-          {
-            "scaleLabel": {
-              "display": true,
-              "labelString": "Purchase count"
-            },
-            "id": "right",
-            "position": "right",
-            "stacked": false,
-            "ticks": {
-              "beginAtZero": true
-            }
-          }
-        ]
-      },
-      "title": {
-        "display": false
-      },
-      "tooltips": {
-        "intersect": false,
-        "mode": "index",
-        "position": "nearest",
-        "callbacks": {}
-      }
-    }
-
-  </script>
-</head>
-
-<body>
-  <div id="viewDiv"></div>
-  <div id="panel">
-    <div style="padding: 15px;">
-
-      <canvas id="env-chart" height="170" width="550"></canvas>
-      <canvas id="Node-status-chart" height="150" width="500"></canvas>
-      <canvas id="line-chart" width="250" height="150"></canvas>
->>>>>>> e913c366813a29c4769fe146fdf6d9b91d92a7f6
       <script>
         new Chart(document.getElementById("line-chart"), {
           type: 'line',
