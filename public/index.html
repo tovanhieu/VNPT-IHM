@@ -26,604 +26,63 @@
         }
     </style>
 
-    <!-- // Vue.js -->
-    <!-- script src="https://cdn.jsdelivr.net/npm/vue"></script-->
-
-
-    <!-- // Jquery.js -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
-
-    <!--  myDatabase,table-->
-    <script src="js/sample/json.js" type="text/javascript"></script>
-    <script src="js/myDatabase.js" type="text/javascript"></script>
-
-    <!-- Uikit3 -->
-    <script src="js/uikit.js"></script>
-    <script src="js/ol.js"></script>
-
-    <!--  myDatabase,table -->
-    <script src="js/table.js" type="text/javascript"></script>
-
-    <!-- Semantic UI-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.3/semantic.min.js"></script>
-
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-
-    <!-- Web GL for wave pointing-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix.js"></script>
-
     <!--ArcGIS developer -->
-    <script src="https://js.arcgis.com/4.11/"></script>
-    <script>
-        require([
-            "esri/Map",
-            "esri/core/watchUtils", // added
-            "esri/geometry/support/webMercatorUtils",  // added          
-            "esri/views/2d/layers/BaseLayerViewGL2D",  // added
-            "esri/layers/GraphicsLayer",
-            "esri/Graphic",
-            "esri/views/MapView",
-            "esri/widgets/BasemapToggle"
-        ], function (Map, watchUtils, webMercatorUtils, BaseLayerViewGL2D, GraphicsLayer, Graphic, MapView, BasemapToggle) {
-
-            // Subclass the custom layer view from BaseLayerViewGL2D.
-            var CustomLayerView2D = BaseLayerViewGL2D.createSubclass({
-                // Locations of the two vertex attributes that we use. They
-                // will be bound to the shader program before linking.
-                aPosition: 0,
-                aOffset: 1,
-
-                constructor: function () {
-                    // Geometrical transformations that must be recomputed
-                    // from scratch at every frame.
-                    this.transform = mat3.create();
-                    this.translationToCenter = vec2.create();
-                    this.screenTranslation = vec2.create();
-
-                    // Geometrical transformations whose only a few elements
-                    // must be updated per frame. Those elements are marked
-                    // with NaN.
-                    this.display = mat3.fromValues(NaN, 0, 0, 0, NaN, 0, -1, 1, 1);
-                    this.screenScaling = vec3.fromValues(NaN, NaN, 1);
-
-                    // Whether the vertex and index buffers need to be updated
-                    // due to a change in the layer data.
-                    this.needsUpdate = false;
-
-                    // We listen for changes to the graphics collection of the layer
-                    // and trigger the generation of new frames. A frame rendered while
-                    // `needsUpdate` is true may cause an update of the vertex and
-                    // index buffers.
-                    var requestUpdate = function () {
-                        this.needsUpdate = true;
-                        this.requestRender();
-                    }.bind(this);
-
-                    this.watcher = watchUtils.on(
-                        this,
-                        "layer.graphics",
-                        "change",
-                        requestUpdate,
-                        requestUpdate,
-                        requestUpdate
-                    );
-                },
-
-                // Called once a custom layer is added to the map.layers collection and this layer view is instantiated.
-                attach: function () {
-                    var gl = this.context;
-
-                    // Define and compile shaders.
-                    var vertexSource =
-                        "precision highp float;" +
-                        "uniform mat3 u_transform;" +
-                        "uniform mat3 u_display;" +
-                        "attribute vec2 a_position;" +
-                        "attribute vec2 a_offset;" +
-                        "varying vec2 v_offset;" +
-                        "const float SIZE = 70.0;" +
-                        "void main() {" +
-                        "    gl_Position.xy = (u_display * (u_transform * vec3(a_position, 1.0) + vec3(a_offset * SIZE, 0.0))).xy;" +
-                        "    gl_Position.zw = vec2(0.0, 1.0);" +
-                        "    v_offset = a_offset;" +
-                        "}";
-
-                    var fragmentSource =
-                        "precision highp float;" +
-                        "uniform float u_current_time;" +
-                        "varying vec2 v_offset;" +
-                        "const float PI = 3.14159;" +
-                        "const float N_RINGS = 3.0;" +
-                        "const vec3 COLOR = vec3(0.23, 0.43, 0.70);" +
-                        "const float FREQ = 1.0;" +
-                        "void main() {" +
-                        "    float l = length(v_offset);" +
-                        "    float intensity = clamp(cos(l * PI), 0.0, 1.0) * clamp(cos(2.0 * PI * (l * 2.0 * N_RINGS - FREQ * u_current_time)), 0.0, 1.0);" +
-                        "    gl_FragColor = vec4(COLOR * intensity, intensity);" +
-                        "}";
-
-                    var vertexShader = gl.createShader(gl.VERTEX_SHADER);
-                    gl.shaderSource(vertexShader, vertexSource);
-                    gl.compileShader(vertexShader);
-                    var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-                    gl.shaderSource(fragmentShader, fragmentSource);
-                    gl.compileShader(fragmentShader);
-
-                    // Create the shader program.
-                    this.program = gl.createProgram();
-                    gl.attachShader(this.program, vertexShader);
-                    gl.attachShader(this.program, fragmentShader);
-
-                    // Bind attributes.
-                    gl.bindAttribLocation(this.program, this.aPosition, "a_position");
-                    gl.bindAttribLocation(this.program, this.aOffset, "a_offset");
-
-                    // Link.
-                    gl.linkProgram(this.program);
-
-                    // Shader objects are not needed anymore.
-                    gl.deleteShader(vertexShader);
-                    gl.deleteShader(fragmentShader);
-
-                    // Retrieve uniform locations once and for all.
-                    this.uTransform = gl.getUniformLocation(
-                        this.program,
-                        "u_transform"
-                    );
-                    this.uDisplay = gl.getUniformLocation(this.program, "u_display");
-                    this.uCurrentTime = gl.getUniformLocation(
-                        this.program,
-                        "u_current_time"
-                    );
-
-                    // Create the vertex and index buffer. They are initially empty. We need to track the
-                    // size of the index buffer because we use indexed drawing.
-                    this.vertexBuffer = gl.createBuffer();
-                    this.indexBuffer = gl.createBuffer();
-
-                    // Number of indices in the index buffer.
-                    this.indexBufferSize = 0;
-
-                    // When certain conditions occur, we update the buffers and re-compute and re-encode
-                    // all the attributes. When buffer update occurs, we also take note of the current center
-                    // of the view state, and we reset a vector called `translationToCenter` to [0, 0], meaning that the
-                    // current center is the same as it was when the attributes were recomputed.
-                    this.centerAtLastUpdate = vec2.fromValues(
-                        this.view.state.center[0],
-                        this.view.state.center[1]
-                    );
-                },
-
-                // Called once a custom layer is removed from the map.layers collection and this layer view is destroyed.
-                detach: function () {
-                    // Stop watching the `layer.graphics` collection.
-                    this.watcher.remove();
-
-                    var gl = this.context;
-
-                    // Delete buffers and programs.
-                    gl.deleteBuffer(this.vertexBuffer);
-                    gl.deleteBuffer(this.indexBuffer);
-                    gl.deleteProgram(this.program);
-                },
-
-                // Called every time a frame is rendered.
-                render: function (renderParameters) {
-                    var gl = renderParameters.context;
-                    var state = renderParameters.state;
-
-                    // Update vertex positions. This may trigger an update of
-                    // the vertex coordinates contained in the vertex buffer.
-                    // There are three kinds of updates:
-                    //  - Modification of the layer.graphics collection ==> Buffer update
-                    //  - The view state becomes non-stationary ==> Only view update, no buffer update
-                    //  - The view state becomes stationary ==> Buffer update
-                    this.updatePositions(renderParameters);
-
-                    // If there is nothing to render we return.
-                    if (this.indexBufferSize === 0) {
-                        return;
-                    }
-
-                    // Update view `transform` matrix; it converts from map units to pixels.
-                    mat3.identity(this.transform);
-                    this.screenTranslation[0] = (devicePixelRatio * state.size[0]) / 2;
-                    this.screenTranslation[1] = (devicePixelRatio * state.size[1]) / 2;
-                    mat3.translate(
-                        this.transform,
-                        this.transform,
-                        this.screenTranslation
-                    );
-                    mat3.rotate(
-                        this.transform,
-                        this.transform,
-                        (Math.PI * state.rotation) / 180
-                    );
-                    this.screenScaling[0] = devicePixelRatio / view.state.resolution;
-                    this.screenScaling[1] = -devicePixelRatio / view.state.resolution;
-                    mat3.scale(this.transform, this.transform, this.screenScaling);
-                    mat3.translate(
-                        this.transform,
-                        this.transform,
-                        this.translationToCenter
-                    );
-
-                    // Update view `display` matrix; it converts from pixels to normalized device coordinates.
-                    this.display[0] = 2 / (devicePixelRatio * state.size[0]);
-                    this.display[4] = -2 / (devicePixelRatio * state.size[1]);
-
-                    // Draw.
-                    gl.useProgram(this.program);
-                    gl.uniformMatrix3fv(this.uTransform, false, this.transform);
-                    gl.uniformMatrix3fv(this.uDisplay, false, this.display);
-                    gl.uniform1f(this.uCurrentTime, performance.now() / 1000.0);
-                    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-                    gl.enableVertexAttribArray(this.aPosition);
-                    gl.enableVertexAttribArray(this.aOffset);
-                    gl.vertexAttribPointer(this.aPosition, 2, gl.FLOAT, false, 16, 0);
-                    gl.vertexAttribPointer(this.aOffset, 2, gl.FLOAT, false, 16, 8);
-                    gl.enable(gl.BLEND);
-                    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-                    gl.drawElements(
-                        gl.TRIANGLES,
-                        this.indexBufferSize,
-                        gl.UNSIGNED_SHORT,
-                        0
-                    );
-
-                    // Request new render because markers are animated.
-                    this.requestRender();
-                },
-
-                // Called internally from render().
-                updatePositions: function (renderParameters) {
-                    var gl = renderParameters.context;
-                    var stationary = renderParameters.stationary;
-                    var state = renderParameters.state;
-
-                    // If we are not stationary we simply update the `translationToCenter` vector.
-                    if (!stationary) {
-                        vec2.sub(
-                            this.translationToCenter,
-                            this.centerAtLastUpdate,
-                            state.center
-                        );
-                        this.requestRender();
-                        return;
-                    }
-
-                    // If we are stationary, the `layer.graphics` collection has not changed, and
-                    // we are centered on the `centerAtLastUpdate`, we do nothing.
-                    if (
-                        !this.needsUpdate &&
-                        this.translationToCenter[0] === 0 &&
-                        this.translationToCenter[1] === 0
-                    ) {
-                        return;
-                    }
-
-                    // Otherwise, we record the new encoded center, which imply a reset of the `translationToCenter` vector,
-                    // we record the update time, and we proceed to update the buffers.
-                    this.centerAtLastUpdate.set(state.center);
-                    this.translationToCenter[0] = 0;
-                    this.translationToCenter[1] = 0;
-                    this.needsUpdate = false;
-
-                    var graphics = this.layer.graphics;
-
-                    // Generate vertex data.
-                    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-                    var vertexData = new Float32Array(16 * graphics.length);
-
-                    var i = 0;
-                    graphics.forEach(
-                        function (graphic) {
-                            var point = graphic.geometry;
-
-                            // The (x, y) position is relative to the encoded center.
-                            var x = point.x - this.centerAtLastUpdate[0];
-                            var y = point.y - this.centerAtLastUpdate[1];
-
-                            vertexData[i * 16 + 0] = x;
-                            vertexData[i * 16 + 1] = y;
-                            vertexData[i * 16 + 2] = -0.5;
-                            vertexData[i * 16 + 3] = -0.5;
-                            vertexData[i * 16 + 4] = x;
-                            vertexData[i * 16 + 5] = y;
-                            vertexData[i * 16 + 6] = 0.5;
-                            vertexData[i * 16 + 7] = -0.5;
-                            vertexData[i * 16 + 8] = x;
-                            vertexData[i * 16 + 9] = y;
-                            vertexData[i * 16 + 10] = -0.5;
-                            vertexData[i * 16 + 11] = 0.5;
-                            vertexData[i * 16 + 12] = x;
-                            vertexData[i * 16 + 13] = y;
-                            vertexData[i * 16 + 14] = 0.5;
-                            vertexData[i * 16 + 15] = 0.5;
-
-                            ++i;
-                        }.bind(this)
-                    );
-
-                    gl.bufferData(gl.ARRAY_BUFFER, vertexData, gl.STATIC_DRAW);
-
-                    // Generates index data.
-                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-
-                    var indexData = new Uint16Array(6 * graphics.length);
-                    for (var i = 0; i < graphics.length; ++i) {
-                        indexData[i * 6 + 0] = i * 4 + 0;
-                        indexData[i * 6 + 1] = i * 4 + 1;
-                        indexData[i * 6 + 2] = i * 4 + 2;
-                        indexData[i * 6 + 3] = i * 4 + 1;
-                        indexData[i * 6 + 4] = i * 4 + 3;
-                        indexData[i * 6 + 5] = i * 4 + 2;
-                    }
-
-                    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexData, gl.STATIC_DRAW);
-
-                    // Record number of indices.
-                    this.indexBufferSize = indexData.length;
-                }
-            });
-
-            // Subclass the custom layer view from GraphicsLayer.
-            var CustomLayer = GraphicsLayer.createSubclass({
-                createLayerView: function (view) {
-                    // We only support MapView, so we only need to return a
-                    // custom layer view for the `2d` case.
-                    if (view.type === "2d") {
-                        return new CustomLayerView2D({
-                            view: view,
-                            layer: this
-                        });
-                    }
-                }
-            });
-            /* end (2019-06-09) */
-
-            var layer_Wave = new CustomLayer();
-
-            const layer = new GraphicsLayer();
-
-            const map = new Map({
-                basemap: "streets-night-vector",
-                layers: [layer_Wave, layer]
-                // layers: [layer]
-            });
-
-            var view = new MapView({
-                container: "viewDiv",
-                map: map,
-                zoom: 16,
-                // center: [140.034465, 35.646667] // longitude, latitude 
-                center: [135.4862, 34.689383] // longitude, latitude 
-            });
-
-            // map.add(layer_Wave);
-            //map.add(layer);
-
-            const markerSymbol = {
-                type: "picture-marker",
-                url: "https://static.arcgis.com/images/Symbols/Shapes/BlackStarLargeB.png",
-                width: "80px",
-                height: "80px"
-            };
-
-            var toggle = new BasemapToggle({
-                view: view,
-                nextBasemap: "topo"
-            });
-
-            view.ui.add(toggle, "top-left");
-
-
-
-            //{ id : "" , {geometry: point, symbol: markerSymbol}} 
-            // <- {geometry: point, symbol: markerSymbol}Graphic
-            var array_pointGraphic = new Array();
-            var array_waveGraphic = new Array();
-
-            const ICON_TYPE = {
-                gw: "gw",
-                gwUrl: "img/hdd.PNG",
-                de_gwUrl: "img/de_hdd.png",
-                lora: "lora",
-                loraUrl: "img/sun.PNG",
-                de_loraUrl: "img/de_sun.png",
-                PulsarGum: "PulsarGum",
-                PulsarGumUrl: "img/rss.PNG",
-                de_PulsarGumUrl: "img/de_rss.png"
-            }
-
-
-            $(document).on('dragend', '#gw_table tr', function (event) {
-                $m_id = $(this).children().get(1); // id
-                $m_status = $(this).children().get(3); // Status (active/inactive)
-
-                $(this)[0].cells[2].innerHTML =
-                    manage_pointGraphic(event, $m_id.innerHTML, $m_status.innerHTML);
-            });
-
-            /*
-                Device_Table icon drag→drop
-                jquery eventListner -> Native DOM operation
-            */
-            $(document).on('dragend', '#device_table tr', function (event) {
-                $m_id = $(this).children().get(1); // id
-                $m_status = $(this).children().get(3);// Status (active/inactive)
-
-                $(this)[0].cells[2].innerHTML =
-                    manage_pointGraphic(event, $m_id.innerHTML, $m_status.innerHTML);
-            });
-
-            function manage_pointGraphic(e, idHTML, status) {
-                var flag = false;
-
-                var element_map = document.getElementById("viewDiv");
-                var mp = element_map.getBoundingClientRect();
-                var mapPoint = view.toMap({ x: (e.pageX - mp.x), y: (e.pageY - mp.y) });
-
-
-                // マップ上に登録されているか、存在有無の確認
-                for (i = 0; i < array_pointGraphic.length; i++) {
-                    var t_pointGraphic_id = array_pointGraphic[i].id;
-                    if (idHTML == t_pointGraphic_id) {
-                        // 位置座標の更新処理
-                        array_pointGraphic[i].pointGraphic.geometry = mapPoint;
-                        flag = true;
-                        wave_refresh();
-                        return 'On';
-                    }
-                }
-
-                // array_pointGraphicに存在しない場合、新規にオブジェクト作成
-                if (!flag) {
-                    let newSymbol = create_markerSymbol(idHTML, status);
-                    let newPointGraphic = new a_pointGraphic(idHTML, mapPoint, newSymbol, status);
-                    // wave_add(newPointGraphic.pointGraphic);
-                    // deviceのステータスがアクティブだった場合。
-                    if (newPointGraphic.status) {
-                        layer_Wave.graphics.add({ geometry: mapPoint });
-                    }
-
-                    layer.addMany([newPointGraphic.pointGraphic]);
-
-                    // icon_droppable(event, newPointGraphic); // manage_point Graphicで返り値がtrueだったら、実行しない。
-                    array_pointGraphic.push(newPointGraphic);
-
-                    return 'On';
-                }
-
-                return 'Yet';
-            }
-
-            function wave_refresh() {
-                for (i = 0; i < layer_Wave.graphics._items.length; i++) {
-                    delete layer_Wave.graphics._items[i]; // 対象オブジェクトをマップ上から削除する方法。
-                }
-
-                for (i = 0; i < array_pointGraphic.length; i++) {
-                    if (array_pointGraphic[i].status) {
-                        var w_mappoint = array_pointGraphic[i].pointGraphic.geometry;
-                        layer_Wave.graphics.add({ geometry: w_mappoint });
-                    }
-                }
-            }
-
-            // ICON_TYPEはinitTable.jsに定義
-            function create_markerSymbol(iHTML, status) {
-                let icon_url = "";
-
-                if (~iHTML.indexOf(ICON_TYPE.gw)) {
-                    if (status == "active") {
-                        icon_url = ICON_TYPE.gwUrl;
-                    } else {
-                        icon_url = ICON_TYPE.de_gwUrl;
-                    }
-                } else if (~iHTML.indexOf(ICON_TYPE.PulsarGum)) {
-                    if (status == "active") {
-                        icon_url = ICON_TYPE.PulsarGumUrl;
-                    } else {
-                        icon_url = ICON_TYPE.de_PulsarGumUrl;
-                    }
-                } else if (~iHTML.indexOf(ICON_TYPE.lora)) {
-                    if (status == "active") {
-                        icon_url = ICON_TYPE.loraUrl
-                    } else {
-                        icon_url = ICON_TYPE.de_loraUrl
-                    }
-                } else {
-                    if (status == "active") {
-                        icon_url = "./img/tag.png";
-                    } else {
-                        icon_url = "./img/de_tag.png";
-                    }
-                }
-
-                console.log(icon_url);
-
-                let newMarkerSymbol = {
-                    type: "picture-marker",
-                    url: icon_url,
-                    width: "24px",
-                    height: "24px"
-                };
-
-                return newMarkerSymbol;
-            }
-
-            // 新規にオブジェクトを作成する場合のコンストラクタ
-            function a_pointGraphic(id, mappoint, newSymbol, status) {
-                this.id = id;
-                if (status == "active") {
-                    this.status = true;
-                } else {
-                    this.status = false;
-                }
-
-                // iconは新規に登録
-
-                this.pointGraphic = new Graphic({
-                    geometry: mappoint,
-                    symbol: newSymbol
-                });
-            }
-
-            function icon_droppable(e, newPointGraphic) {
-
-                var element_map = document.getElementById("viewDiv");
-                var mp = element_map.getBoundingClientRect();
-
-                console.log("スクリーン座標", (e.pageX - mp.x), (e.pageY - mp.y));
-
-                const mapPoint = view.toMap({ x: (e.pageX - mp.x), y: (e.pageY - mp.y) });
-                console.log("マップ座標", mapPoint.longitude, mapPoint.latitude);
-
-                // 新しく作成したポイント グラフィックをグラフィックス レイヤーに追加
-                layer.addMany([newPointGraphic]);
-            };
-
-            /*
-            @GW_table double click時の挙動
-           */
-            $(document).on('dblclick', '#gw_table tr', function (event) {
-                let iHTML = $(this).children().get(1).innerHTML;
-
-                dlclick_focus(iHTML);
-            });
-
-            /*
-             @GW_table double click時の挙動
-            */
-
-            $(document).on('dblclick', '#device_table tr', function (event) {
-                let iHTML = $(this).children().get(1).innerHTML;
-                dlclick_focus(iHTML);
-            });
-
-            // GW_table, Device_tableフォーカス
-            function dlclick_focus(iHTML) {
-                for (i = 0; i < array_pointGraphic.length; i++) {
-                    var temp = array_pointGraphic[i];
-                    var t_pointGraphic_id = array_pointGraphic[i].id;
-                    if (iHTML == t_pointGraphic_id) {
-                        var mt = array_pointGraphic[i].pointGraphic;
-                        var glng = mt.geometry.longitude;
-                        var glat = mt.geometry.latitude;
-
-                        view.goTo([glng, glat], { speedFactor: 0.3, easing: "linear" });
-                    }
-                }
-            }
-
-        });
-
-    </script>
 
     <title>VNPT-IHM Management Dashboard</title>
+    <script src="https://js.arcgis.com/4.28/"></script>
+    <script>
+        require(["esri/config", "esri/Map", "esri/views/MapView", "esri/Graphic", "esri/layers/GraphicsLayer"], function (esriConfig, Map, MapView, Graphic, GraphicsLayer) {
+            esriConfig.apiKey = "AAPK99c3b2c0da9b4b99a3272d2c60604effYpA4bmZkOlYzvyMFFPk_2LlwZN36qNTq0VzqecjE4JvlPtEFvA5k3e6-8ia9RmrL";
+            const map = new Map({
+                basemap: "osm/dark-gray" // basemap styles service
+
+            });
+            const view = new MapView({
+                map: map,
+                center: [107.0842971, 20.9517149], // Longitude, latitude
+                zoom: 18, // Zoom level
+                container: "viewDiv" // Div element
+            });
+            const graphicsLayer = new GraphicsLayer();
+            map.add(graphicsLayer);
+            const point1 = { //Create a point
+                type: "point",
+                longitude: 107.0845895,
+                latitude: 20.9516957
+            };
+            const simpleMarkerSymbol1 = {
+                type: "simple-marker",
+                color: [226, 119, 40],  // Orange
+                outline: {
+                    color: [255, 255, 255], // White
+                    width: 1
+                }
+            };
+            const pointGraphic1 = new Graphic({
+                geometry: point1,
+                symbol: simpleMarkerSymbol1
+            });
+            const point2 = { //Create a point
+                type: "point",
+                longitude: 107.0852133,
+                latitude: 20.9511412
+            };
+            const simpleMarkerSymbol2 = {
+                type: "simple-marker",
+                color: [226, 145, 40],  // Orange
+                outline: {
+                    color: [255, 255, 255], // White
+                    width: 1
+                }
+            };
+            const pointGraphic2 = new Graphic({
+                geometry: point2,
+                symbol: simpleMarkerSymbol2
+            });
+            graphicsLayer.add(pointGraphic1);
+            graphicsLayer.add(pointGraphic2);
+        });
+    </script>
 </head>
 
 <body>
@@ -637,7 +96,7 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <img src="/public/img/VNPT_Logo.svg.png" alt="" width="50px" height="50px">
+                        <img src="./img/VNPT_Logo.png" alt="" width="50px" height="50px">
                     </div>
                     <div class="collapse navbar-collapse" id="myNavbar" style="font-size: medium;">
                         <ul class="nav navbar-nav navbar-right">
@@ -677,9 +136,6 @@
 
         </div>
     </div>
-
-    <!-- dl class="uk-section"-->
-    <!--div class="ui vertical segment"-->
     <dd class="ui grid">
         <div class="ui zero"> </div>
 
@@ -687,10 +143,6 @@
             <div class="ui segments">
                 <div class="ui segment" style="height:130px;">
                     <h3>Hạ tầng quản trị</h3>
-
-                    <!--
-                    Added by Aki(20190523) -> Semantic UIの適用
-                  -->
                     <form class="ui form">
                         <div class="field">
                             <label>GW Id：</label>
@@ -705,7 +157,6 @@
 
                     <div id="example-1">
                         <table class="table teal table-bordered table-hover">
-                            <!-- table class="ui celled striped table selectable"-->
                             <thread style="display:block">
                                 <tr>
                                     <th colspan="4">
@@ -725,7 +176,6 @@
                 </div>
                 <div class="ui segment">
                     <table class="table teal table-bordered table-hover">
-                        <!-- table class="ui celled striped table selectable"-->
                         <thread style="display:block">
                             <tr>
                                 <th colspan="4">
@@ -749,13 +199,8 @@
                 <div id="viewDiv"></div>
             </div>
         </div>
-
-
     </dd>
 
-    <!--/div-->
-
-    <!--div class="ui vertical segment"-->
 
     <dd class="ui sixteen stackable grid" style="height:200px;">
         <div class="ui zero"> </div>
@@ -807,7 +252,7 @@
         <footer class="footer" id="contact">
             <div style="color: blanchedalmond; font-size: larger; display: flex; flex-wrap: nowrap;">
                 <div class="img-footer" style="margin-right: 30px;">
-                    <img src="./img/VNPT_Logo.svg.png" height="50px" width="50px" alt="">
+                    <img src="./img/VNPT_Logo.png" height="50px" width="50px" alt="">
                 </div>
                 <div class="footer-content">
                     <p style="text-align: center;">Phát triển bởi: Tô Văn Hiệu
@@ -820,11 +265,7 @@
             </div>
         </footer>
     </dd>
-    <!--/div-->
-    <div id="initTable">
-        <!-- <script src="js/initTable.js" type="text/javascript">
-        </script> -->
-    </div>
+
 </body>
 
 </html>
