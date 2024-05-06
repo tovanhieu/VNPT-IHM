@@ -102,34 +102,30 @@
       map.add(graphicsLayer);
       const point1 = { //Create a point
         type: "point",
-        longitude: 107.0845895,
-        latitude: 20.9516957
+        longitude: 107.0847264,
+        latitude: 20.9524246
       };
       const simpleMarkerSymbol1 = {
-        type: "simple-marker",
-        color: [226, 119, 40],  // Orange
-        outline: {
-          color: [255, 255, 255], // White
-          width: 1
-        }
-      };
+                type: "picture-marker",
+                url: "img/hdd.PNG",
+                width: "24px",
+                height: "24px"
+            };
       const pointGraphic1 = new Graphic({
         geometry: point1,
         symbol: simpleMarkerSymbol1
       });
       const point2 = { //Create a point
         type: "point",
-        longitude: 107.0852133,
-        latitude: 20.9511412
+        longitude: 107.0847215,
+        latitude: 20.9524246
       };
       const simpleMarkerSymbol2 = {
-        type: "simple-marker",
-        color: [226, 145, 40],  // Orange
-        outline: {
-          color: [255, 255, 255], // White
-          width: 1
-        }
-      };
+                type: "picture-marker",
+                url: "img/hdd.PNG",
+                width: "24px",
+                height: "24px"
+            };
       const pointGraphic2 = new Graphic({
         geometry: point2,
         symbol: simpleMarkerSymbol2

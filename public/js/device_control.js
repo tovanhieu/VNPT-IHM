@@ -23,7 +23,6 @@ if (os.platform() == 'win32') {
     var chilkat = require('@chilkat/ck-node17-macosx');
 }
 function chilkatExample() {
-    console.log("1")
 
     // This example assumes the Chilkat API to have been previously unlocked.
     // See Global Unlock Sample for sample code.
@@ -35,14 +34,12 @@ function chilkatExample() {
         console.log(ssh.LastErrorText);
         return;
     }
-    console.log("2")
     // Authenticate using login/password:
     success = ssh.AuthenticatePw(deviceUser,devicePassword);
     if (success !== true) {
         console.log(ssh.LastErrorText);
         return;
     }
-    console.log("3")
 
     // Start a shell session.
     var channelNum = ssh.QuickShell();
@@ -51,7 +48,6 @@ function chilkatExample() {
         return;
     }
 
-    console.log("4")
 
     // If the CISCO switch returns a prompt with "#", then read until we get the prompt.
     // (It's not actually required that we do this, but it helps to know that all is OK at this point..)
@@ -60,17 +56,13 @@ function chilkatExample() {
         console.log(ssh.LastErrorText);
         return;
     }
-    console.log("5");
 
     // Show what we received so far:
     console.log(ssh.GetReceivedText(channelNum,"utf-8"));
-    
-    console.log("6");
 
     // Send a "show clock" command.
     success = ssh.ChannelSendString(channelNum,"show clock\n","utf-8");
 
-    console.log("7");
 
     // Read the output to the next interactive prompt.
     success = ssh.ChannelReceiveUntilMatch(channelNum,"#","utf-8",true);
@@ -78,8 +70,6 @@ function chilkatExample() {
         console.log(ssh.LastErrorText);
         return;
     }
-    console.log("8");
-
     console.log(ssh.GetReceivedText(channelNum,"utf-8"));
 
     // Send another command and get the output, and so on...
@@ -89,10 +79,8 @@ function chilkatExample() {
         console.log(ssh.LastErrorText);
         return;
     }
-    console.log("9");
 
     console.log(ssh.GetReceivedText(channelNum,"utf-8"));
-    console.log("10");
 
     ssh.Disconnect();
 
