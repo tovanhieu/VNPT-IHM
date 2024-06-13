@@ -41,65 +41,6 @@
     <title>VNPT-IHM Management Dashboard</title>
     <script src="https://js.arcgis.com/4.28/"></script>
     <script>
-<<<<<<< HEAD
-      require([
-        "esri/config",
-        "esri/Map",
-        "esri/views/MapView",
-        "esri/Graphic",
-        "esri/layers/GraphicsLayer",
-      ], function (esriConfig, Map, MapView, Graphic, GraphicsLayer) {
-        esriConfig.apiKey =
-          "AAPK99c3b2c0da9b4b99a3272d2c60604effYpA4bmZkOlYzvyMFFPk_2LlwZN36qNTq0VzqecjE4JvlPtEFvA5k3e6-8ia9RmrL";
-        const map = new Map({
-          basemap: "osm/dark-gray", // basemap styles service
-        });
-        const view = new MapView({
-          map: map,
-          center: [107.0842971, 20.9517149], // Longitude, latitude
-          zoom: 18, // Zoom level
-          container: "viewDiv", // Div element
-        });
-        const graphicsLayer = new GraphicsLayer();
-        map.add(graphicsLayer);
-        const point1 = {
-          //Create a point
-          type: "point",
-          longitude: 107.0847264,
-          latitude: 20.9524246,
-        };
-        const simpleMarkerSymbol1 = {
-          type: "picture-marker",
-          url: "img/hdd.PNG",
-          width: "24px",
-          height: "24px",
-        };
-        const pointGraphic1 = new Graphic({
-          geometry: point1,
-          symbol: simpleMarkerSymbol1,
-        });
-        const point2 = {
-          //Create a point
-          type: "point",
-          longitude: 107.0847215,
-          latitude: 20.9524246,
-        };
-        const simpleMarkerSymbol2 = {
-          type: "picture-marker",
-          url: "img/hdd.PNG",
-          width: "24px",
-          height: "24px",
-        };
-        const pointGraphic2 = new Graphic({
-          geometry: point2,
-          symbol: simpleMarkerSymbol2,
-        });
-        graphicsLayer.add(pointGraphic1);
-        graphicsLayer.add(pointGraphic2);
-      });
-    </script>
-  </head>
-=======
         require(["esri/config", "esri/Map", "esri/views/MapView", "esri/Graphic", "esri/layers/GraphicsLayer"], function (esriConfig, Map, MapView, Graphic, GraphicsLayer) {
             esriConfig.apiKey = "AAPK99c3b2c0da9b4b99a3272d2c60604effYpA4bmZkOlYzvyMFFPk_2LlwZN36qNTq0VzqecjE4JvlPtEFvA5k3e6-8ia9RmrL";
             const map = new Map({
@@ -120,7 +61,8 @@
                 latitude: 20.9524246
             };
             const simpleMarkerSymbol1 = {
-                type: "simple-marker",
+              type: "picture-marker",
+              url: "img/hdd.PNG",
                 color: [226, 119, 40],  // Orange
                 outline: {
                     color: [255, 255, 255], // White
@@ -132,7 +74,8 @@
                 symbol: simpleMarkerSymbol1
             });
             const point2 = { //Create a point
-                type: "point",
+              type: "picture-marker",
+              url: "img/hdd.PNG",
                 longitude: 107.0847215,
                 latitude: 20.9524246
             };
@@ -153,11 +96,9 @@
         });
     </script>
 </head>
->>>>>>> d6fa55e668a25c119d849eed2363db631a2f5b08
 
   <body>
     <div class="menu">
-<<<<<<< HEAD
       <div class="navigation">
         <nav class="navbar navbar-default navbar-fixed-top">
           <div class="container-fluid">
@@ -178,53 +119,6 @@
                 width="50px"
                 height="50px"
               />
-=======
-        <div class="navigation">
-            <nav class="navbar navbar-default navbar-fixed-top">
-                <div class="container-fluid">
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                        <img src="./img/VNPT_Logo.png" alt="" width="50px" height="50px">
-                    </div>
-                    <div class="collapse navbar-collapse" id="myNavbar" style="font-size: medium;">
-                        <ul class="nav navbar-nav navbar-right">
-                            <li class="nav-hover"><a href="./index.html">Quản lí thiết bị</a></li>
-                            <li class="nav-hover"><a href="./myapp.html">Giám sát thiết bị</a></li>
-                            <li class="nav-hover"><a href="/javascript-chatbot-master/public/index.html">Chat bot AI</a>
-                            </li>
-                            <li class="nav-hover"><a href="#Security">Bảo mật hệ thống</a></li>
-                            <li class="nav-hover"><a href="#contact">Liên hệ</a></li>
-                            <li class="dropdown">
-                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">MORE
-                                    <span class="caret"></span>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li> <a class="active red right item" id="offline_demo" style="height:30px;">
-                                            OFFLINE
-                                        </a></li>
-                                    <li><a class="active item" id="online_demo" style="height:30px;">
-                                            ONLINE
-                                        </a></li>
-                                </ul>
-                            </li>
-                            <li><a href="#"><span class="glyphicon glyphicon-search"></span></a></li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-        </div>
-        <div class="ui inverted segment">
-
-            <div class="ui inverted  secondary menu" style="display: flex; flex-wrap: nowrap;">
-                <br>
-                <h2 style="position:relative; padding-left: 10px; padding-top: 30px;">VNPT IHM - Hệ thống quản trị hạ
-                    tầng
-                    IT khách sạn</h2>
->>>>>>> d6fa55e668a25c119d849eed2363db631a2f5b08
             </div>
             <div
               class="collapse navbar-collapse"
@@ -298,7 +192,6 @@
     <dd class="ui grid">
       <div class="ui zero"></div>
 
-<<<<<<< HEAD
       <div class="ui segment five wide column">
         <div class="ui segments">
           <div class="ui segment" style="height: 130px">
@@ -327,84 +220,6 @@
                     <th>Reset</th>
                     <th>Turn off</th>
                   </tr>
-=======
-        <div class="ui segment five wide column">
-            <div class="ui segments">
-                <div class="ui segment" style="height:130px;">
-                    <h3>Hạ tầng quản trị</h3>
-                    <form class="ui form">
-                        <div class="field">
-                            <label>GW Id：</label>
-                            <input type="text" name="GW_id" placeholder="GW ID">
-                        </div>
-                    </form>
-                    <button class="ui button">Register</button>
-                </div>
-                <br>
-
-                <div class="ui segment">
-
-                    <div id="example-1">
-                        <table class="table teal table-bordered table-hover">
-                            <thread style="display:block">
-                                <tr>
-                                    <th colspan="4">
-                                        Danh sách các thiết bị Gateway
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <th colspan="2">Mx-Id</th>
-                                    <th>Map</th>
-                                    <th>State</th>
-                                </tr>
-                            </thread>
-                            <tbody id="gw_table" style="height:100%; overflow-y:scroll">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="ui segment">
-                    <table class="table teal table-bordered table-hover">
-                        <thread style="display:block">
-                            <tr>
-                                <th colspan="4">
-                                    Danh sách các thiết bị truy cập
-                                </th>
-                            </tr>
-                            <tr>
-                                <th colspan="2">DeviceId</th>
-                                <th>Map</th>
-                                <th>State</th>
-                            </tr>
-                        </thread>
-                        <tbody id="device_table" style="height:100%; overflow-y:scroll">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="ten wide column">
-            <div class="ui segment">
-                <div id="viewDiv"></div>
-            </div>
-        </div>
-    </dd>
-
-
-    <dd class="ui sixteen stackable grid" style="height:200px;">
-        <div class="ui zero"> </div>
-        <div class="ui segment five wide column" id="box_td">
-            <table class="table table-bordered table-hover" style="height:relative;">
-                <thread>
-                    <h3>Danh sách các thiết bị</h3>
-                    <tr>
-                        <th>Thiết bị</th>
-                        <th>Lựa chọn</th>
-                    </tr>
-                    <tbody id="prop_table">
-
-                    </tbody>
->>>>>>> d6fa55e668a25c119d849eed2363db631a2f5b08
                 </thread>
                 <tbody id="gw_table" style="height: 100%; overflow-y: scroll">
                   <tr>
@@ -457,11 +272,6 @@
         </div>
       </div>
     </dd>
-<<<<<<< HEAD
-=======
-
-</body>
->>>>>>> d6fa55e668a25c119d849eed2363db631a2f5b08
 
     <dd class="ui sixteen stackable grid" style="height: 200px">
       <div class="ui zero"></div>
