@@ -67,6 +67,14 @@
   },
   {
     "questions": [
+      "Bật hết các thiết bị tầng một"
+    ],
+    "answers": [
+      "Mình đã nhận được thông tin, đang bật thiết bị .... thiết bị đã bật"
+    ]
+  },
+  {
+    "questions": [
       "Bạn là ai ?"
     ],
     "answers": [

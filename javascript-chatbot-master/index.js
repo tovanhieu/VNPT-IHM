@@ -8,7 +8,7 @@ const { capitalCase } = require("change-case");
 const extractValues = require("extract-values");
 const stringSimilarity = require("string-similarity");
 const { upperCaseFirst } = require("upper-case-first");
-wiki.setLang('vi')
+// wiki.setLang('vi')
 
 const cors = require("cors");
 const path = require("path");
