@@ -63,14 +63,42 @@
         symbol: simpleMarkerSymbol1
       });
       const point2 = { //Create a point
-        type: "picture-marker",
-        url: "img/hdd.PNG",
-        longitude: 107.0847215,
-        latitude: 20.9524246
+        type: "point",
+        longitude: 107.084837,
+        latitude: 20.9524361
+      };
+      const point3 = { //Create a point
+        type: "point",
+        longitude: 107.0846216,
+        latitude: 20.9525247
+      };
+      const point4 = { //Create a point
+        type: "point",
+        longitude: 107.0845264,
+        latitude: 20.9524146
       };
       const simpleMarkerSymbol2 = {
-        type: "simple-marker",
-        color: [218, 145, 40],  // green
+        type: "picture-marker",
+        url: "img/rss.PNG",
+        color: [226, 119, 40],  // Orange
+        outline: {
+          color: [255, 255, 255], // White
+          width: 1
+        }
+      };
+      const simpleMarkerSymbol3 = {
+        type: "picture-marker",
+        url: "img/de_rss.PNG",
+        color: [226, 119, 40],  // Orange
+        outline: {
+          color: [255, 255, 255], // White
+          width: 1
+        }
+      };
+      const simpleMarkerSymbol4 = {
+        type: "picture-marker",
+        url: "img/de_hdd.PNG",
+        color: [226, 119, 40],  // Orange
         outline: {
           color: [255, 255, 255], // White
           width: 1
@@ -80,9 +108,20 @@
         geometry: point2,
         symbol: simpleMarkerSymbol2
       });
+      const pointGraphic3 = new Graphic({
+        geometry: point3,
+        symbol: simpleMarkerSymbol3
+      });
+      const pointGraphic4 = new Graphic({
+        geometry: point4,
+        symbol: simpleMarkerSymbol4
+      });
       graphicsLayer.add(pointGraphic1);
       graphicsLayer.add(pointGraphic2);
+      graphicsLayer.add(pointGraphic3);
+      graphicsLayer.add(pointGraphic4);
     });
+    
   </script>
   <script src="./js/deviceControl.js"></script>
 </head>
