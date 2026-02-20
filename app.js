@@ -108,10 +108,13 @@
 //     console.log("Success reboot device: ", devIP);
 // }
 
-var express = require("express");
+const express = require('express');
+const app = express();
 
-var app = express(express);
+const aiapp = require('./aiapp');
 
+app.use(express.json());
+app.use('/aiapp',aiapp);
 app.use(express.static('public'));
 
 //make way for some custom css, js and images
@@ -119,9 +122,8 @@ app.use('/css', express.static(__dirname + '/public/css'));
 app.use('/fonts', express.static(__dirname + '/public/font'));
 app.use('/imgs', express.static(__dirname + '/public/img'));
 
+// app.listen(port, () => console.log(`app listening on port ${port}!`));
 var server = app.listen(8000, function(){
     var port = server.address().port;
     console.log("Server started at http://localhost:%s", port);
 });
-
-
